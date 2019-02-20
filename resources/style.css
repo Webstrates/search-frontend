@@ -1,0 +1,95 @@
+body {
+	font: 95%/135% 'Helvetiva Neue', 'Helvetiva', sans-serif;
+	font-weight: 200;
+	-webkit-font-smoothing: antialiased;
+}
+a {
+	text-decoration: none;
+}
+h1 {
+	font-size: 400%;
+}
+h2 {
+	font-weight: 200;
+}
+#wrapper {
+	background: #fff;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2em;
+	overflow: auto;
+}
+div#userBox {
+	font-size: 80%;
+	text-align: right;
+	position: absolute;
+	top: .5em;
+	right: 1em;
+}
+div#userBox img {
+	float: right;
+}
+div#userBox img[src='au-logo.png'] {
+	height: 25px;
+	margin: 5px 0;
+}
+div#userBox img[src='github-logo.png'] {
+	height: 35px;
+}
+input#searchField {
+	font-size: 100%;
+	padding: .5em 1em;
+	margin-left: .5em;
+	width: calc(100% - 10em);
+	max-width: 600px;
+}
+button#searchButton {
+	font-size: 100%;
+	padding: .5em 1em;
+}
+div#dateSelectors {
+	padding: .5em.75em;
+	overflow: auto;
+}
+div#dateSelectors label {
+	padding-right: .5em;
+}
+div#dateSelectors input {
+	font-family: inherit;
+}
+div#results {
+	margin: 1em .5em;
+}
+div#results div.hit div.hit {
+	padding: .25em 0;
+}
+div#results div.hit h3 {
+	font-weight: 400;
+	margin: .2em 0;
+}
+div#results div.hit span.dates {
+	font-size: 70%;
+	color: #444;
+}
+div#results div.hit span.score:before {
+	content: '(score: ';
+}
+div#results div.hit span.score:after {
+	content: ')';
+}
+div#results div.hit span.score {
+	font-size: 70%;
+	font-weight: bold;
+	position: relative;
+	top: -.1em;
+}
+div#results div.hit span.permissions {
+	padding-top: .1em;
+	font-size: 85%;
+	display: block;
+	color: #444;
+}
+div#results div.hit span.webstrateName a {
+	font-weight: normal;
+	color: darkgreen;
+}
