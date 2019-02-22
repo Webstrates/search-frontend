@@ -89,7 +89,24 @@ div#results div.hit span.permissions {
 	display: block;
 	color: #444;
 }
-div#results div.hit span.webstrateName a {
+div#results div.hit span.webstrateId a {
 	font-weight: normal;
 	color: darkgreen;
+}
+div#results div#pages {
+	text-align: center;
+}
+div#results div#metadata {
+	margin: 1em 0 .5em;
+	padding-top: .5em;
+	text-align: center;
+}
+div#results div#pages a[current] {
+	color: #000;
+	font-weight: bold;
+}
+div#results div#pages a[chevron] {
+	font-size: 350%;
+	position: relative;
+	top: .15em;
 }

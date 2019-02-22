@@ -16,18 +16,21 @@ webstrate.on('loaded', () => {
 	};
 
 	const objectToQueryString = (object) => {
-		console.log(object);
 		return Object.keys(object).map(key =>  `${key}=${encodeURIComponent(object[key])}`).join('&');
 	};
 
-	const addToHash = (key, value) => {
+	const addToHash = (key, value, addToLocation = true) => {
 		const object = queryStringToObject(location.hash.substring(1));
 		if (key && value) {
 			object[key] = value;
 		} else {
 			delete object[key];
 		}
-		location.hash = objectToQueryString(object);
+		const hash = objectToQueryString(object);
+		if (addToLocation) {
+			location.hash = hash;
+		}
+		return hash;
 	};
 
 	const getFromHash = (key) => {
@@ -41,7 +44,6 @@ webstrate.on('loaded', () => {
 	 * @return {HTMLTable}      Table with results.
 	 */
 	const createResultBox = (results) => {
-		console.log(results);
 		const box = document.createElement('div');
 		box.setAttribute('id', 'results');
 
@@ -63,7 +65,7 @@ webstrate.on('loaded', () => {
 					<h3><a href="/${hit._id}/">${title}</a></h3>
 					<div>
 						<span class="score">${hit._score.toFixed(2)}</span>
-						<span class="webstrateName"><a href="/${hit._id}/">/${hit._id}</a></span>`;
+						<span class="webstrateId"><a href="/${hit._id}/">/${hit._id}</a></span>`;
 			if (ctime && mtime) {
 				hits += `
 						<span class="dates">
@@ -81,8 +83,38 @@ webstrate.on('loaded', () => {
 		box.insertAdjacentHTML('beforeend', hits);
 
 		box.insertAdjacentHTML('beforeend', `
-			<p>Query took <strong>${results.took}ms</strong>
-			and returned <strong>${results.hits.total} results</strong>.</p>`)
+			<div id="metadata">Query took <strong>${results.took}ms</strong>
+			and found <strong>${results.hits.total} matches</strong>.</div>`);
+
+		// Create page links
+		let total = results.hits.total;
+		let limit = Number(getFromHash('l')) || 10;
+		if (limit > 0 && total > limit) {
+			let pages = Math.ceil(total / limit);
+			let pagesHtml = [];
+			const p = Number(getFromHash('p')) || 1;
+			const first = Math.max(1, p - 10);
+			if (p > 1) {
+				pagesHtml.push(`<a href="#${addToHash('p', p - 1, false)}" chevron>&lsaquo;</a>`);
+				if (p > limit + 1) {
+					pagesHtml.push(`<a href="#${addToHash('p', 1, false)}">&hellip;</a>`);
+				}
+			}
+			const last = Math.min(pages, p + 10);
+			for (let i=first, l=last; i <= l; ++i) {
+				const hash = addToHash('p', i, false);
+				pagesHtml.push(`<a href="#${hash}" ${i === p ? 'current' : ''}>${i}</a>`);
+			}
+			if (p < pages) {
+				if (p + limit < pages) {
+					pagesHtml.push(`<a href="#${addToHash('p', pages, false)}">&hellip;</a>`);
+				}
+				pagesHtml.push(`<a href="#${addToHash('p', p + 1, false)}" chevron>&rsaquo;</a>`);
+			}
+			box.insertAdjacentHTML('beforeend', `<div id="pages">
+				${pagesHtml.join(' ')}
+			</div>`);
+		}
 
 		return box;
 	};
@@ -104,10 +136,6 @@ webstrate.on('loaded', () => {
 		const box = createResultBox(results);
 
 		container.appendChild(box);
-	};
-
-	const putQueryInHash = () => {
-		const query = encodeURIComponent(searchField.value);
 	};
 
 	/**
@@ -135,9 +163,9 @@ webstrate.on('loaded', () => {
 		</div>`);
 	}
 
-	searchButton.addEventListener('click', () => addToHash('q', searchField.value));
+	searchButton.addEventListener('click', () => addToHash('q', searchField.value, true));
 	searchField.addEventListener('keydown', (event) => {
-		if (event.key === 'Enter') addToHash('q', searchField.value);
+		if (event.key === 'Enter') addToHash('q', searchField.value, true);
 	});
 
 	document.querySelectorAll('div#dateSelectors input').forEach(input => {
@@ -145,17 +173,12 @@ webstrate.on('loaded', () => {
 		input.addEventListener('change', e => addToHash(input.id, input.value));
 	});
 
-	window.addEventListener('hashchange', (e) => {
-		//const oldURL = queryStringToObject(new URL(e.oldURL).hash.substring(1)));
-		//const newURL = queryStringToObject(new URL(e.newURL).hash.substring(1)));
-		search();
-	});
+	window.addEventListener('hashchange', (e) => search());
 
 	// Search for whatever is in hash on load.
 	search();
 
 	searchField.value = getFromHash('q') || '';
-
 
 	searchField.focus();
 });
